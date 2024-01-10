@@ -16,27 +16,19 @@
 # DEALINGS IN THE SOFTWARE.
 # Step 1: Import necessary libraries and modules
 
-import docker
-
-container_name = "ssh-container" #Docker container name
-
-# Initialize Docker client
-
-# Kill the currently running container
+import subprocess
+container_name = "ssh-container"  # Podman container name
 def kill_container():
     try:
-        client = docker.from_env()
-        containers = client.containers.list(all=True)
-        running_container = None
-        for container in containers:
-            if container_name in container.name:
-                running_container = container
-                break
-        if running_container:
-            running_container.stop()
-            running_container.remove()
+        result_stop = subprocess.run(["podman", "stop", container_name], capture_output=True, text=True)
+        result_rm = subprocess.run(["podman", "rm", container_name], capture_output=True, text=True)
+        
+        if result_stop.returncode == 0 and result_rm.returncode == 0:
             return True
+        else:
+            return False
     except Exception as e:
-        #bt.logging.info(f"Error killing container {e}")
+        print(f"Error killing container: {e}")
         return False
+
 kill_container()

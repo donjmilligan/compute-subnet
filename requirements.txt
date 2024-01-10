@@ -4,4 +4,3 @@ psutil
 igpu
 cryptography
 pyinstaller
-docker

@@ -15,73 +15,81 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 # Step 1: Import necessary libraries and modules
-
-import docker
-import sys
+import platform
 import subprocess
-import json
-import os
 import string
 import secrets
-import bittensor as bt
-import base64
+import json
+import random
+import rsa
 
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(parent_dir)
+# Function to install Podman based on the available package manager
+def install_podman():
+    package_managers = {
+        "apt": ["sudo", "apt", "update", "-y", "&&", "sudo", "apt", "install", "-y", "podman"],
+        "dnf": ["sudo", "dnf", "install", "-y", "podman"],
+        "yum": ["sudo", "yum", "install", "-y", "podman"],
+        # Add more package managers and their commands as needed
+    }
 
-import RSAEncryption as rsa
-
-image_name = "ssh-image" #Docker image name
-container_name = "ssh-container" #Docker container name
-volume_name = "ssh-volume" #Docker volumne name
-volume_path = '/tmp' #Path inside the container where the volume will be mounted
-ssh_port = 4444  # Port to map SSH service on the host
-
-# Initialize Docker client
-def get_docker():
-    client = docker.from_env()
-    containers = client.containers.list(all=True)
-    return client, containers
-
-# Kill the currently running container
-def kill_container():
+    system = platform.system()
     try:
-        client, containers = get_docker()
-        running_container = None
-        for container in containers:
-            if container_name in container.name:
-                running_container = container
-                break
-        if running_container:
-            running_container.stop()
-            running_container.remove()
-            #bt.logging.info("Container was killed successfully")
-            return True
+        if system == "Linux":
+            distro = platform.linux_distribution(full_distribution_name=False)[0].lower()
+            for package_manager, command in package_managers.items():
+                if subprocess.run(["which", package_manager], capture_output=True).returncode == 0:
+                    print(f"Using {package_manager} to install Podman...")
+                    subprocess.run(command)
+                    return True
+            print("No compatible package manager found to install Podman.")
+            return False
         else:
-            #bt.logging.info("Unable to find container")
+            print("Podman installation is only supported on Linux systems.")
             return False
     except Exception as e:
-        #bt.logging.info(f"Error killing container {e}")
+        print(f"Error installing Podman: {e}")
         return False
-    
 
-# Run a new docker container with the given docker_name, image_name and device information
-def run_container(cpu_usage, ram_usage, hard_disk_usage, gpu_usage, public_key):
+# Function to retrieve Podman containers
+def get_podman_containers():
     try:
-        client, containers = get_docker()
-        # Configuration
-        password = password_generator(10)
-        cpu_assignment = cpu_usage['assignment'] #e.g : 0-1
-        ram_limit = ram_usage['capacity'] # e.g : 5g
-        hard_disk_capacity = hard_disk_usage['capacity'] # e.g : 100g
-        gpu_capacity = gpu_usage['capacity'] # e.g : all
+        result = subprocess.run(["podman", "ps", "-a", "--format", "json"], capture_output=True, text=True)
+        if result.returncode == 0:
+            return result.stdout
+        else:
+            return None
+    except FileNotFoundError:
+        print("Podman is not installed.")
+        if install_podman():
+            return get_podman_containers()
+        else:
+            return None
 
-        # Step 1: Build the Docker image with an SSH server
-        dockerfile_content = '''
+# Function to stop and remove a specific Podman container
+def kill_podman_container(container_name):
+    # Stop and remove a specific Podman container
+    result = subprocess.run(["podman", "stop", container_name], capture_output=True, text=True)
+    if result.returncode == 0:
+        subprocess.run(["podman", "rm", container_name])
+        return True
+    else:
+        return False
+
+# Function to run a Podman container
+def run_podman_container(image_name, container_name, cpu_usage, ram_usage, hard_disk_usage, gpu_usage):
+    try:
+        password = password_generator(10)
+        cpu_assignment = cpu_usage['assignment']
+        ram_limit = ram_usage['capacity']
+        hard_disk_capacity = hard_disk_usage['capacity']
+        gpu_capacity = gpu_usage['capacity']
+
+        # Step 1: Create an SSH server in a container using Podman
+        dockerfile_content = f'''
         FROM ubuntu
         RUN apt-get update && apt-get install -y openssh-server
         RUN mkdir -p /run/sshd  # Create the /run/sshd directory
-        RUN echo 'root:''' + password + '''' | chpasswd
+        RUN echo 'root:{password}' | chpasswd
         RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
         RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
         RUN sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' /etc/ssh/sshd_config
@@ -92,74 +100,72 @@ def run_container(cpu_usage, ram_usage, hard_disk_usage, gpu_usage, public_key):
         with open(dockerfile_path, "w") as dockerfile:
             dockerfile.write(dockerfile_content)
 
-        # Build the Docker image
-        client.images.build(path=os.path.dirname(dockerfile_path), dockerfile=os.path.basename(dockerfile_path), tag=image_name)
-        # Create the Docker volume with the specified size
-        #client.volumes.create(volume_name, driver = 'local', driver_opts={'size': hard_disk_capacity})
+        # Build the image using Podman
+        subprocess.run(["podman", "build", "-f", dockerfile_path, "-t", image_name, "."])
+    except Exception as e:
+        print(f"Error running container: {e}")
+        return {'status': False}
 
-        # Step 2: Run the Docker container
-        container = client.containers.run(
-            image=image_name,
-            name=container_name,
-            detach=True,
-            #cpuset_cpus=cpu_assignment,
-            #mem_limit=ram_limit,
-            #storage_opt={"size": hard_disk_capacity},
-            #volumes={volume_name: {'bind': volume_path, 'mode': 'rw'}},
-            #gpus=gpu_capacity,
-            #environment = ["NVIDIA_VISIBLE_DEVICES=all"],
-            ports={22: ssh_port}
-        )
+def run_container(image_name, container_name, ssh_port, password, public_key):
+    try:
+        # Run the container using Podman
+        subprocess.run([
+            "podman", "run", "--name", container_name, "--detach", 
+            "-p", f"{ssh_port}:22", image_name
+        ])
         
-        # Check the status to determine if the container ran successfully
+        # Check if the container is created successfully
+        container_info = subprocess.run(["podman", "inspect", container_name], capture_output=True)
+        container_data = json.loads(container_info.stdout)
 
-        if container.status == "created":
-            #bt.logging.info("Container was created successfully")
-            info = {'username' : 'root', 'password' : password, 'port': ssh_port}
+        if container_data and container_data[0]["State"]["Status"] == "running":
+            info = {'username': 'root', 'password': password, 'port': ssh_port}
             info_str = json.dumps(info)
             public_key = public_key.encode('utf-8')
             encrypted_info = rsa.encrypt_data(public_key, info_str)
             encrypted_info = base64.b64encode(encrypted_info).decode('utf-8')
-            return {'status' : True, 'info' : encrypted_info}
+            return {'status': True, 'info': encrypted_info}
         else:
-            #bt.logging.info(f"Container falied with status : {container.status}")
-            return {'status' : False}
+            return {'status': False}
     except Exception as e:
-        #bt.logging.info(f"Error running container {e}")
-        return {'status' : False}
+        print(f"Error running container: {e}")
+        return {'status': False}
 
-# Check if the container exists
-def check_container():
+def check_container(container_name):
     try:
-        client, containers = get_docker()
-        for container in containers:
-            if container_name in container.name:
-                return True
-        return False
+        # Check if the container exists using Podman
+        result = subprocess.run(["podman", "inspect", container_name], capture_output=True)
+        if result.returncode == 0:
+            return True
+        else:
+            return False
     except Exception as e:
-        #bt.logging.info(f"Error checking container {e}")
+        print(f"Error checking container: {e}")
         return False
 
-# Set the base size of docker, daemon
-def set_docker_base_size(base_size):#e.g 100g
-    docker_daemon_file = "/etc/docker/daemon.json"
+def set_podman_base_size(base_size):
+    try:
+        podman_config_file = "/etc/containers/containers.conf"
 
-    # Modify the daemon.json file to set the new base size
-    storage_options = {
-        "storage-driver": "devicemapper",
-        "storage-opts": [
-            "dm.basesize=" + base_size
-        ]
-    }
+        # Modify the containers.conf file to set the new base size
+        storage_options = f"option_storage_driver = 'devicemapper'\noption_storage_opts = ['dm.basesize={base_size}']"
 
-    with open(docker_daemon_file, "w") as json_file:
-        json.dump(storage_options, json_file, indent=4)
+        with open(podman_config_file, "w") as conf_file:
+            conf_file.write(storage_options)
 
-    # Restart Docker
-    subprocess.run(["systemctl", "restart", "docker"])
+        # Restart Podman service
+        subprocess.run(["systemctl", "restart", "podman"])
+    except Exception as e:
+        print(f"Error setting Podman base size: {e}")
 
-# Randomly generate password for given length
 def password_generator(length):
-    alphabet = string.ascii_letters + string.digits  # You can customize this as needed
-    random_str = ''.join(secrets.choice(alphabet) for _ in range(length))
+    # Generate a random password
+    alphabet = string.ascii_letters + string.digits
+    random_str = ''.join(random.choice(alphabet) for _ in range(length))
     return random_str
+
+# Usage example:
+containers = get_podman_containers()
+if containers is not None:
+    print(containers)
+
