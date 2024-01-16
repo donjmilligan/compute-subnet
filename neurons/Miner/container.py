@@ -16,7 +16,6 @@
 # DEALINGS IN THE SOFTWARE.
 # Step 1: Import necessary libraries and modules
 
-import docker
 import sys
 import subprocess
 import json
