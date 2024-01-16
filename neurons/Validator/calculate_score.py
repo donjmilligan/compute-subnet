@@ -20,55 +20,71 @@ import numpy as np
 import bittensor as bt
 import wandb
 
-#Calculate score based on the performance information
+# Calculate score based on the performance information
 def score(data, hotkey):
     try:
-        #Calculate score for each device
+        # Calculate score for each device
         cpu_score = get_cpu_score(data["cpu"])
         gpu_score = get_gpu_score(data["gpu"])
         hard_disk_score = get_hard_disk_score(data["hard_disk"])
         ram_score = get_ram_score(data["ram"])
         registered = check_if_registered(hotkey)
 
+        # Define upper limits for scores
+        # 128 (max nb cpu) * 5000 (5Ghz) / 1024 (const) / 75 (level)
+        cpu_limit = 8.33333333333
+        # 652472 (capacity) * 16000 (speed Mhz) / 100000 (level)
+        gpu_limit = 104.39552
+        # 10000000000000 (free space 10Tb) * 20000 (speed) / 10000000 (level)
+        hard_disk_limit = 18.6264514923
+        # 512 (free ram 512Gb) * 5000 (speed) / 200000 (level)
+        ram_limit = 128
+
+        # Applying upper limits to scores
+        cpu_score = min(cpu_score, cpu_limit)
+        gpu_score = min(gpu_score, gpu_limit)
+        hard_disk_score = min(hard_disk_score, hard_disk_limit)
+        ram_score = min(ram_score, ram_limit)
+
         score_list = np.array([[cpu_score, gpu_score, hard_disk_score, ram_score]])
 
-        #Define weights for devices
-        cpu_weight = 0.2
-        gpu_weight = 0.55
-        hard_disk_weight = 0.1
-        ram_weight = 0.15
+        # Define weights for devices
+        cpu_weight = 0.025
+        gpu_weight = 0.95
+        hard_disk_weight = 0.02
+        ram_weight = 0.005
 
         weight_list = np.array([[cpu_weight], [gpu_weight], [hard_disk_weight], [ram_weight]])
-        registration_bonus = registered * 10
+        registration_bonus = registered * 100
 
-        return np.dot(score_list, weight_list).item() * 10 + registration_bonus
+        return 10 + np.dot(score_list, weight_list).item() * 100 + registration_bonus
     except Exception as e:
         return 0
 
-#Score of cpu
+# Score of cpu
 def get_cpu_score(cpu_info):
     try:
         count = cpu_info['count']
         frequency = cpu_info['frequency']
-        level = 50 #20, 2.5
+        level = 75  # 30, 2.5
         return count * frequency / 1024 / level
     except Exception as e:
         return 0
 
-#Score of gpu
+# Score of gpu
 def get_gpu_score(gpu_info):
     try:
-        level = 200000 #20GB, 2GHz
+        level = 100000000  # 10GB, 2GHz
         capacity = gpu_info['capacity'] / 1024 / 1024 / 1024
         speed = (gpu_info['graphics_speed'] + gpu_info['memory_speed']) / 2
         return capacity * speed / level
     except Exception as e:
         return 0
     
-#Score of hard disk
+# Score of hard disk
 def get_hard_disk_score(hard_disk_info):
     try:
-        level = 1000000 #1TB, 1g/s
+        level = 10000000 # 1TB, 10g/s
         capacity = hard_disk_info['free'] / 1024 / 1024 / 1024
         speed = (hard_disk_info['read_speed'] + hard_disk_info['write_speed']) / 2
 
@@ -76,17 +92,17 @@ def get_hard_disk_score(hard_disk_info):
     except Exception as e:
         return 0
 
-#Score of ram
+# Score of ram
 def get_ram_score(ram_info):
     try:
-        level = 200000 #100GB, 2g/s
-        capacity = ram_info['available'] / 1024 / 1024 / 1024
+        level = 200000  # 100GB, 2g/s
+        capacity = ram_info['free'] / 1024 / 1024 / 1024
         speed = ram_info['read_speed']
         return capacity * speed / level
     except Exception as e:
         return 0
 
-#Check if miner is registered
+# Check if miner is registered
 def check_if_registered(hotkey):
     try:
         runs = wandb.Api().runs("registered-miners")
@@ -99,5 +115,4 @@ def check_if_registered(hotkey):
         else:
             return False
     except Exception as e:
-        #bt.logging.info(f"Error getting cpu information : {e}")
         return False

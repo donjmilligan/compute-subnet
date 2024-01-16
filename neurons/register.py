@@ -43,10 +43,10 @@ import compute
 def get_config():
 
     parser = argparse.ArgumentParser()
-    # TODO(developer): Adds your custom validator arguments to the parser.
-    parser.add_argument('--custom', default='my_custom_value', help='Adds a custom value to the parser.')
     # Adds override arguments for network and netuid.
     parser.add_argument( '--netuid', type = int, default = 1, help = "The chain subnet uid." )
+    parser.add_argument( '--gpu_type', type = str, default = "", help = "The type of GPU required." )
+    parser.add_argument( '--gpu_size', type = int, default = 0, help = "The capacity of GPU required in MB." )
     # Adds subtensor specific arguments i.e. --subtensor.chain_endpoint ... --subtensor.network ...
     bt.subtensor.add_args(parser)
     # Adds logging specific arguments i.e. --logging.debug ..., --logging.trace .. or --logging.logging_dir ...
@@ -74,7 +74,7 @@ def get_config():
     # Return the parsed config.
     return config
 
-#Generate ssh connection for given device requirements and timeline
+# Generate ssh connection for given device requirements and timeline
 def allocate (config, device_requirement, timeline, public_key):
     wallet = bt.wallet( config = config )
     bt.logging.info(f"Wallet: {wallet}")
@@ -91,7 +91,7 @@ def allocate (config, device_requirement, timeline, public_key):
     metagraph = subtensor.metagraph( config.netuid )
     bt.logging.info(f"Metagraph: {metagraph}")
     
-    #Find out the candidates
+    # Find out the candidates
     candidates_hotkey = db.select_miners_hotkey(device_requirement)
 
     axon_candidates = []
@@ -99,42 +99,29 @@ def allocate (config, device_requirement, timeline, public_key):
         if axon.hotkey in candidates_hotkey:
             axon_candidates.append(axon)
 
-    allocate_responses = dendrite.query(
+    responses = dendrite.query(
         axon_candidates,
         compute.protocol.Allocate(timeline = timeline, device_requirement = device_requirement, checking = True)
     )
 
     final_candidates_hotkey = []
-    unavailable_uids = []
 
-    for index, allocate_response in enumerate(allocate_responses):
+    for index, response in enumerate(responses):
         hotkey = axon_candidates[index].hotkey
-        if allocate_response and allocate_response['status'] == True:
+        if response and response['status'] == True:
             final_candidates_hotkey.append(hotkey)
-        elif not cs.check_if_registered(hotkey):
-            uid = metagraph.hotkeys.index(hotkey)
-            unavailable_uids.append(uid)
-    
-    if unavailable_uids:
-        result = subtensor.set_weights(
-            netuid = config.netuid, # Subnet to set weights on.
-            wallet = wallet, # Wallet to sign set weights using hotkey.
-            uids = unavailable_uids, # Uids of the miners to set weights for.
-            weights = [0] * len(unavailable_uids), # Weights to set for the miners.
-            wait_for_inclusion = False
-        )
-
-    #Check if there are candidates
+ 
+    # Check if there are candidates
     if final_candidates_hotkey == []:
         return {"status" : False, "msg" : "No proper miner"}
     
-    #Sort the candidates with their score
+    # Sort the candidates with their score
     scores = torch.ones_like(metagraph.S, dtype=torch.float32)
 
     score_dict = {hotkey: score for hotkey, score in zip([axon.hotkey for axon in metagraph.axons], scores)}
     sorted_hotkeys = sorted(final_candidates_hotkey, key=lambda hotkey: score_dict.get(hotkey, 0), reverse=True)
 
-    #Loop the sorted candidates and check if one can allocate the device
+    # Loop the sorted candidates and check if one can allocate the device
     for hotkey in sorted_hotkeys:
         index = metagraph.hotkeys.index(hotkey)
         axon = metagraph.axons[index]
@@ -150,25 +137,10 @@ def allocate (config, device_requirement, timeline, public_key):
         
     return {"status" : False, "msg" : "No proper miner"}
 
-#Filter axons with ip address, remove axons with same ip address
-def filter_axons_with_ip(axons_list):
-    # Set to keep track of unique identifiers
-    unique_ip_addresses = set()
-
-    # List to store filtered axons
-    filtered_axons = []
-
-    for axon in axons_list:
-        ip_address = axon.ip
-
-        if ip_address not in unique_ip_addresses:
-            unique_ip_addresses.add(ip_address)
-            filtered_axons.append(axon)
-
-    return filtered_axons
-
 def main( config ):
-    device_requirement = {'cpu':{'count':1}, 'gpu':{'count': 2, 'capacity': 10737418240}, 'hard_disk':{'capacity':10737418240}, 'ram':{'capacity':10737418240}}
+    device_requirement = {'cpu':{'count':1}, 'gpu':{}, 'hard_disk':{'capacity':1073741824}, 'ram':{'capacity':1073741824}}
+    if config.gpu_type != "" and config.gpu_size != 0:
+        device_requirement['gpu'] = {'count':1, 'capacity':config.gpu_size, 'type':config.gpu_type}
     timeline = 60
     private_key, public_key = rsa.generate_key_pair()
     result = allocate(config, device_requirement, timeline, public_key)
@@ -190,8 +162,8 @@ def upload_wandb(hotkey):
     except Exception as e:
         bt.logging.info(f"Error uploading to wandb : {e}")
         return
-# The main function parses the configuration and runs the validator.
 
+# The main function parses the configuration and runs the validator.
 if __name__ == "__main__":
     # Parse the configuration.
     config = get_config()

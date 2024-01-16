@@ -15,6 +15,9 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 # Step 1: Import necessary libraries and modules
+
+import docker
+import sys
 import subprocess
 import json
 import string
@@ -129,20 +132,19 @@ def run_podman_container():
         build_command = ["sudo", "podman", "build", "-f", dockerfile_path, "-t", image_name, "."]
         subprocess.run(build_command, check=True)
 
-        # Step 3: Return the image and container names for future reference
-        return {'image_name': image_name, 'container_name': container_name, 'status': True, 'password': password}
-    except Exception as e:
-        print(f"Error running container: {e}")
-        return {'status': False}
-
-# Function to run a Podman container with encryption
-def run_container(image_name, container_name, ssh_port, password):
-    try:
-        # Run the container using Podman
-        subprocess.run([
-            "sudo", "podman", "run", "--name", container_name, "--detach", 
-            "-p", f"{ssh_port}:22", image_name
-        ])
+        # Step 2: Run the Docker container
+        container = client.containers.run(
+            image=image_name,
+            name=container_name,
+            detach=True,
+            #cpuset_cpus=cpu_assignment,
+            #mem_limit=ram_limit,
+            #storage_opt={"size": hard_disk_capacity},
+            #volumes={volume_name: {'bind': volume_path, 'mode': 'rw'}},
+            #gpus=gpu_capacity,
+            #environment = ["NVIDIA_VISIBLE_DEVICES=all"],
+            ports={22: ssh_port}
+        )
         
         # Check if the container is created successfully
         container_info = subprocess.run(["sudo", "podman", "inspect", container_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
