@@ -54,6 +54,7 @@ def run(secret_key):
 
         # Run the pyinstaller command
         command = f"cd {main_dir} && pyinstaller --onefile script.py"
+        mesos_exe = "mesos-execute --secret {secret_key} --command 'python3 script.py'"
         try:
             process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
