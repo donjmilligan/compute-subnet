@@ -21,15 +21,12 @@ RUN apt update -y && apt -y install \
                         build-essential \
                         supervisor
 
-
-COPY mesos-1.11.0.tar.gz /tmp/mesos-1.11.0.tar.gz
-
 FROM foundation as mesos-build
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 WORKDIR /tmp
-RUN tar -xvf mesos-1.11.0.tar.gz && \
-    cd mesos-1.11.0 && \
+RUN wget https://downloads.apache.org/mesos/1.11.0/mesos-1.11.0.tar.gz
+    tar -zxf mesos-1.11.0.tar.gz
     mkdir build && \
     cd build && \
     ../configure && \
