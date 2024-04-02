@@ -1,0 +1,46 @@
+miner*.style: {
+  fill: orange
+  #  shadow: true
+}
+
+challenge_details.style: {
+  fill: "#088"
+  #  shadow: true
+}
+
+miner -> miner_details
+
+miner: {
+  shape: sql_table
+  uid: int {constraint: primary_key}
+  ss58_address: text {constraint: unique}
+}
+
+miner_details: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  hotkey: text
+  details: text
+}
+
+tb: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  hotkey: text
+  details: text
+}
+
+challenge_details: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  ss58_address: text {constraint: unique}
+  success: boolean
+  elapsed_time: real
+  difficulty: int
+  created_at: timestamp with time zone
+
+  FOREIGN KEY (uid) REFERENCES miner(uid) ON DELETE CASCADE,
+  FOREIGN KEY (ss58_address) REFERENCES miner(ss58_address) ON DELETE CASCADE
+}
+
+challenge_details -> miner

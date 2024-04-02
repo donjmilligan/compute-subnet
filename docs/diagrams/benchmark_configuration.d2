@@ -1,0 +1,28 @@
+miner*.style: {
+  fill: orange
+  #  shadow: true
+}
+
+benchmark_configuration.style: {
+  fill: "#008"
+  #  shadow: true
+}
+
+benchmark_configuration: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  ss58_address: text {constraint: unique}
+  cpus: text
+  gpus: text
+  options: text
+  available_services: text
+  created_at: timestamp with time zone
+}
+explanation: |md
+  # lists of services for benchmark
+
+  - cpus - selected CPUs
+  - gpus - test CPUs
+  - options - benchmark options
+  - available_services - available services for benchmark
+|

@@ -1,0 +1,35 @@
+miner*.style: {
+  fill: orange
+  #  shadow: true
+}
+
+benchmark.style: {
+  fill: "#008"
+  #  shadow: true
+}
+
+benchmark: {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  ss58_address: text {constraint: unique}
+  hash_algo: text
+  algo_options: text
+  group: int
+  max_cycle_duration: real
+  count: int
+  result: text
+  error: text
+  elapsed_time: real
+  created_at: timestamp with time zone
+}
+
+explanation: |md
+  # lists of benchmarks
+
+  - hash_algo - algorithm like [gputest, training] 
+  - group - runner group
+  - max_cycle_duration - time per run
+  - count - repeat count
+  - result - result data 
+  - error - error data
+|
