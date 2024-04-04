@@ -23,6 +23,8 @@ Based on [benchmarking](#benchmarking) and [validation](#validation) results, mi
   - [Benchmarking Features](#benchmarking-features)
   - [Benchmarking Algorithms](#benchmarking-algorithms)
 - [Tests](#tests)
+  - [Test Results](#test-results)
+- [Miner Registration](#miner-registration)
 
 ## Overview
 
@@ -112,4 +114,11 @@ Table
 
 # Tests
 
+## Test Results
 
+Tables for gpu:algo
+
+## Miner Registration
+
+![Registration Sandbox 1](diagrams/miner-sandbox1.png)
+![Registration Sandbox 2](diagrams/miner-sandbox2.png)
