@@ -43,6 +43,11 @@ challenge_totals = {}
 min_diff = compute.pow_min_difficulty
 max_diff = compute.pow_max_difficulty
 
+# ComputeLib/Challenge/AI/GpuBurn [
+
+# ComputeLib/Challenge/AI/GpuBurn ]
+# ComputeLib/Challenge/Hashcat 0 [
+
 class Challenge:
     """Store challenge object properties."""
 
@@ -62,6 +67,9 @@ class Challenge:
         self.mask = mask
         self.run_id = run_id
         self.difficulty = difficulty
+
+# ComputeLib/Challenge/Hashcat 0 ]
+# ComputeLib/Docker [
 
 def build_benchmark_container(image_name: str, container_name: str):
     """Create the benchmark container to check Docker's functionality."""
@@ -147,6 +155,9 @@ def check_docker_container(container_id_or_name: str):
         # Handle errors from the Docker CLI
         return False
     
+# ComputeLib/Docker ]
+# ComputeLib/Cuda [
+
 def check_cuda_availability():
     """Verify the number of available CUDA devices (Nvidia GPUs)"""
 
@@ -157,6 +168,9 @@ def check_cuda_availability():
         print(Fore.GREEN + f"CUDA is available with {device_count} CUDA device(s)!")
     else:
         print(Fore.RED + "CUDA is not available or not properly configured on this system.")
+
+# ComputeLib/Cuda ]
+# ComputeLib/Crypto/Blake2 [
 
 def gen_hash(password, salt=None):
     """Generate the hash and salt for a challenge."""
@@ -183,6 +197,9 @@ def gen_hash_password(available_chars=compute.pow_default_chars, length=min_diff
     random.seed(seed)
     return "".join(random.choice(available_chars) for _ in range(length))
 
+# ComputeLib/Crypto/Blake2 ]
+# ComputeLib/Challenge/Hashcat [
+
 def gen_challenge_details(available_chars=compute.pow_default_chars, length=min_diff):
     """Generate the hashing details for a challenge."""
 
@@ -194,6 +211,7 @@ def gen_challenge_details(available_chars=compute.pow_default_chars, length=min_
     except Exception as e:
         print(f"Error during PoW generation (gen_challenge_details): {e}")
         return None
+
 
 def gen_challenge(
     mode = compute.pow_default_mode,
@@ -317,6 +335,9 @@ def format_difficulties(text: str = "") -> List[str]:
     else:
         return [int(x) for x in text.split(",")] if "," in text else [int(text)]
 
+# ComputeLib/Challenge/Hashcat ]
+# Benchmark/Main [
+    
 def main():
     """Handle the core benchmarking logic."""
 
@@ -430,3 +451,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Benchmark/Main ]
