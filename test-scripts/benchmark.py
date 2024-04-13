@@ -260,6 +260,9 @@ def run_hashcat(
                     hashcat_workload_profile,
                     hashcat_extended_options,
                 ]
+            
+            q = " ".join(command)
+            print(q)
 
             process = subprocess.run(
                     command,
@@ -328,7 +331,7 @@ def main():
 
     # Check CUDA devices and docker availability
     check_cuda_availability()
-    build_benchmark_container('compute-subnet-benchmark','sn27-benchmark-container')
+#    build_benchmark_container('compute-subnet-benchmark','sn27-benchmark-container')
     has_docker, msg = check_docker_availability()
 
     if not has_docker:
