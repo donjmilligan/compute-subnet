@@ -19,6 +19,7 @@ Features of IPFS:
 - Anonymity: When uploading a file to the IPFS network, the IP addresses of the sender and receiver are visible to the node uploading and receiving. For added security, miners may require a VPN.
 - Backend Read-Write, Frontend Read-only: There is an issue with uploading from the browser frontend. Some solutions exist for the frontend, but the ipfs architecture design seems primarily focused on the backend. (?)
 - Not all local features are available on the IPFS mainnet. (?)
+- Frontend: Some providers block IPFS URLs.
 
 # IPFS Resources
 
