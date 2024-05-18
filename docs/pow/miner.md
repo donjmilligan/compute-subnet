@@ -15,5 +15,14 @@ AI double precision algorithms:
 
 The algorithm uses hardware accelerator resources and provides protection against ASICs miners.
 
+#### Tiny GPU
 
+A minimal GPU implementation in Verilog optimized for learning about how GPUs work from the ground up.
 
+https://github.com/adam-maj/tiny-gpu
+
+#### Swan
+
+A Lightweight Language Model Execution Environment Using FPGA
+
+https://github.com/turingmotors/swan
