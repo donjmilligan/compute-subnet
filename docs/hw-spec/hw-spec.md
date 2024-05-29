@@ -38,6 +38,7 @@ https://www.servethehome.com/this-is-intel-gaudi-3-the-new-128gb-hbm2e-ai-chip-i
 
 https://www.nvidia.com/content/dam/en-zz/Solutions/design-visualization/quadro-product-literature/proviz-print-nvidia-rtx-a6000-datasheet-us-nvidia-1454980-r9-web%20(1).pdf
 
+```
 *Memory*
 GPU Memory 48 GB
 Memory interface 384-bit
@@ -53,4 +54,4 @@ Tensor performance 309.7 TFLOPS8
 NVIDIA NVLink Connects two NVIDIA RTX A6000 GPUs12
 NVIDIA NVLink bandwidth 112.5 GB/s (bidirectional)
 System interface PCI Express 4.0 x16
-
+```
