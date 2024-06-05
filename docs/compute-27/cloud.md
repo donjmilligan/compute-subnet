@@ -13,6 +13,7 @@ https://stats.akash.network/
 IP leases static IP:PORT https://akash.network/docs/network-features/ip-leases/#full-sdl-example-with-ip-leases
 
 YAML https://akash.network/docs/getting-started/stack-definition-language/
+
 Huge Akash API endpoint https://github.com/akash-network/akash-api/blob/main/docs/swagger-ui/swagger.yaml
 
 ## CoreWave
