@@ -81,3 +81,11 @@ https://sourcegraph.com/blog/the-lifecycle-of-a-code-ai-completion
 ### A Mathematical Theory of Communication
 https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf
 
+## AI
+
+### OpenAI prompt-engineering Six strategies for getting better results
+https://platform.openai.com/docs/guides/prompt-engineering
+
+### OpenAI pricing
+https://openai.com/api/pricing/
+
