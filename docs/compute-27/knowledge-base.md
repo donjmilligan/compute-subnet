@@ -25,19 +25,6 @@ https://pre-commit.com/hooks.html
     search-and-replace - Search and replace strings
 ```
 
-## FAQ
-
-### Issue: Benchmark checking container crash
-Issue: Benchmark checking container crash
-Path: test-scripts/benchmark.py
-Description: Crash at astartup without docker
-Solution: Disable checking container
-Todo: Add option
-```
-#    build_benchmark_container('compute-subnet-benchmark','sn27-benchmark-container')
-```
-https://github.com/xen1024/compute-subnet/commit/570e97d4471a484def119710ab83836c86c48f3d
-
 ## Security
 
 ### VSCode tunnel 
