@@ -10,10 +10,15 @@ If that were possible, there would have been miners who would have taken advanta
 # Code
 
 ## Issue: Benchmark checking container crash
+
 Issue: Benchmark checking container crash
+
 Path: test-scripts/benchmark.py
+
 Description: Crash at astartup without docker
+
 Solution: Disable checking container
+
 Todo: Add option
 ```
 #    build_benchmark_container('compute-subnet-benchmark','sn27-benchmark-container')
