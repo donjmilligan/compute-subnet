@@ -5,15 +5,19 @@ https://docs.bittensor.com/subnets/subnet-hyperparameters
 
 ## Table of Contents
 
-[introduction.md](./introduction.md)
+[Introduction (this)](./introduction.md)
 
-[cloud.md](./cloud.md)
+[FAQ](./faq.md)
 
-[philosophy.md](./philosophy.md)
+[Clouds](./cloud.md)
 
-[knowledge-base.md](./knowledge-base.md)
+[Knowledge base](./knowledge-base.md)
+
+[Database](../database/db.md)
 
 [database/ipfs-proposal.md](../database/ipfs-proposal.md)
+
+[philosophy.md](./philosophy.md)
 
 [pow/miner.md](../pow/miner.md)
 
