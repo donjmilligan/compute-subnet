@@ -1,5 +1,11 @@
 # FAQ
 
+(How do miner and validator defend against malicious peers?)[#how-do-miner-and-validator-defend-against-malicious-peers]
+
+(❌ Hashcat execution timed out )[#-hashcat-execution-timed-out]
+
+(Issue: Benchmark checking container crash)[#issue-benchmark-checking-container-crash]
+
 # WanDB 
 
 ## How do miner and validator defend against malicious peers?
