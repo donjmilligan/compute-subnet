@@ -25,8 +25,8 @@ for file in *\ *; do
   new_file="${file// /%20}"
   # Rename the file
   echo "## file" >> screens.md
-  echo "$new_file" >> screens.md
-  echo "![Alt text](Screenshot%202024-07-07%20at%2017.30.13.png)" >> screens.md
+  echo "$file" >> screens.md
+  echo "![Alt text]($new_file)" >> screens.md
 
 done
 
