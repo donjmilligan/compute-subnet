@@ -55,3 +55,8 @@ NVIDIA NVLink Connects two NVIDIA RTX A6000 GPUs12
 NVIDIA NVLink bandwidth 112.5 GB/s (bidirectional)
 System interface PCI Express 4.0 x16
 ```
+
+## Mobile
+
+### The Snapdragon X Elite’s Adreno iGPU
+https://chipsandcheese.com/2024/07/04/the-snapdragon-x-elites-adreno-igpu/

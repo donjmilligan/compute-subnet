@@ -15,6 +15,10 @@ AI double precision algorithms:
 
 The algorithm uses hardware accelerator resources and provides protection against ASICs miners.
 
+#### 3-bit ASIC LLM
+
+https://arstechnica.com/information-technology/2024/06/researchers-upend-ai-status-quo-by-eliminating-matrix-multiplication-in-llms/2/
+
 #### Tiny GPU
 
 A minimal GPU implementation in Verilog optimized for learning about how GPUs work from the ground up.

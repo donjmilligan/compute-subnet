@@ -4,17 +4,7 @@
 
 ## Akash Network
 
-You need at least 0.5 AKT or 5 USDC in your wallet to deploy on Akash. If you don't have 0.5 AKT or 5 USDC, you can switch to the sandbox
-
-https://console.akash.network/settings
-
-https://stats.akash.network/
-
-IP leases static IP:PORT https://akash.network/docs/network-features/ip-leases/#full-sdl-example-with-ip-leases
-
-YAML https://akash.network/docs/getting-started/stack-definition-language/
-
-Huge Akash API endpoint https://github.com/akash-network/akash-api/blob/main/docs/swagger-ui/swagger.yaml
+[Akash](./akash.md)
 
 ## CoreWave
 
@@ -42,6 +32,9 @@ https://www.latitude.sh/pricing
 
 https://oblivus.com/pricing/
 
+## ❌ Datacrunch 
+Datacrunch has banned the use of its GPUs for any mining activities, including Bittensor. Many users have already reported that Datacrunch is closing access without notice -> do not deal with them.
+
 
 # Tunneling
 
@@ -60,3 +53,8 @@ https://github.com/ekzhang/bore/blob/main/README.md
 
 ### Tunnelling TCP through a file
 https://github.com/fiddyschmitt/File-Tunnel
+
+## more...
+
+### Fly.io
+https://fly.io/
