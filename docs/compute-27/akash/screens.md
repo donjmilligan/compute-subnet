@@ -1,7 +1,7 @@
 # screens
-## file
-Screenshot 2024-07-07 at 17.30.13.png
-![Alt text](Screenshot%202024-07-07%20at%2017.30.13.png)
+## Akash (Solved)
+"Enemies of Akash"
+![Alt text](Enemies of Akash)
 ## file
 Screenshot 2024-07-09 at 04.22.31.png
 ![Alt text](Screenshot%202024-07-09%20at%2004.22.31.png)
